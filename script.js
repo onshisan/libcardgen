@@ -3,10 +3,10 @@ function generateBarcode() {
     if (barcodeInput) {
         document.getElementById("barcode-value").textContent = barcodeInput;
         JsBarcode("#barcode", barcodeInput, {
-            format: "CODABAR",  // Use CODABAR format
-            displayValue: true,
+            format: "codabar",  // Use correct format for your application
             width: 2,
-            height: 40
+            height: 40,
+			text: barcodeInput
         });
     } else {
         alert("Please enter a valid barcode.");
