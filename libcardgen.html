@@ -33,14 +33,14 @@
 <body>
     <div class="card">
         <div class="card-content">
-            <h2>Library Card</h2>
-            <p id="barcode-data">Barcode: <span id="barcode-value"></span></p>
-            <div class="barcode" id="barcode"></div>
+            <h4>Temporary Library Card <br>Carte de bibliothèque temporaire</h4>
+            <img class="barcode" id="barcode"></div>
         </div>
     </div>
+	<br><br>
     <button onclick="generateBarcode()">Generate Card</button>
     <button onclick="window.print()">Print Card</button>
-
+	<p id="barcode-data"><span id="barcode-value"></span></p>
     <script src="https://unpkg.com/jsbarcode@latest/dist/JsBarcode.all.min.js"></script>
     <script src="script.js"></script>
 </body>
