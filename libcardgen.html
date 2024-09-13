@@ -15,7 +15,7 @@
             background-image: url('path-to-your-graphic.png'); /* Add your background image here */
             background-size: cover;
             background-position: center;
-            color: #fff; /* Adjust text color for better contrast if needed */
+            color: #000; /* Adjust text color for better contrast if needed */
         }
         .barcode {
             text-align: center;
@@ -41,7 +41,7 @@
     <button onclick="generateBarcode()">Generate Card</button>
     <button onclick="window.print()">Print Card</button>
 
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+    <script src="https://unpkg.com/jsbarcode@latest/dist/JsBarcode.all.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
