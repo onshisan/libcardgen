@@ -4,7 +4,7 @@ function generateBarcode() {
         document.getElementById("barcode-value").textContent = barcodeInput;
         JsBarcode("#barcode", barcodeInput, {
             format: "codabar",  // Use correct format for your application
-            width: 2,
+            width: 1,
             height: 40,
 			text: barcodeInput
         });
