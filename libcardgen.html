@@ -5,43 +5,198 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library Card Generator</title>
     <style>
+        :root {
+            --card-width: 300px;
+            --card-height: 150px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 1.5rem;
+            color: #111;
+        }
+
+        .app {
+            display: grid;
+            gap: 1rem;
+            max-width: 900px;
+        }
+
+        .panel {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            background: #fff;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        label {
+            font-weight: 600;
+            margin-right: 0.25rem;
+        }
+
+        input[type="text"],
+        input[type="file"] {
+            padding: 0.45rem 0.6rem;
+            border: 1px solid #bbb;
+            border-radius: 6px;
+            min-width: 240px;
+        }
+
+        button {
+            padding: 0.5rem 0.8rem;
+            border: 1px solid #888;
+            border-radius: 6px;
+            background: #f7f7f7;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #efefef;
+        }
+
+        .muted {
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .status {
+            min-height: 1.2rem;
+            font-size: 0.95rem;
+        }
+
+        .status.error {
+            color: #a10000;
+        }
+
+        .status.success {
+            color: #116611;
+        }
+
+        ul#search-results {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0 0;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            max-height: 220px;
+            overflow: auto;
+        }
+
+        ul#search-results li {
+            border-bottom: 1px solid #eee;
+        }
+
+        ul#search-results li:last-child {
+            border-bottom: none;
+        }
+
+        .result-btn {
+            width: 100%;
+            text-align: left;
+            border: none;
+            border-radius: 0;
+            background: #fff;
+            padding: 0.6rem 0.7rem;
+        }
+
+        .result-btn:hover {
+            background: #f5faff;
+        }
+
         .card {
-            width: 300px;
-            height: 150px;
+            width: var(--card-width);
+            height: var(--card-height);
             position: relative;
             border: 1px solid #000;
             padding: 10px;
-            font-family: Arial, sans-serif;
-            background-image: url('path-to-your-graphic.png'); /* Add your background image here */
+            background-image: url('path-to-your-graphic.png');
             background-size: cover;
             background-position: center;
-            color: #000; /* Adjust text color for better contrast if needed */
+            color: #000;
         }
-        .barcode {
-            text-align: center;
-            margin-top: 10px;
-			margin-left: 50px;
-        }
+
         .card-content {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            bottom: 10px;
+            inset: 10px;
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.25;
+        }
+
+        .selected-name {
+            margin: 0.3rem 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            min-height: 1.1rem;
+        }
+
+        .barcode {
+            display: block;
+            margin: 0.4rem auto 0;
+        }
+
+        #barcode-value {
+            margin-top: 0.4rem;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 0.04em;
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="card-content">
-            <p>Temporary Library Card <br>Carte de bibliothèque temporaire</p>
-            <img class="barcode" id="barcode" align="center"></div>
-        </div>
-    </div>
-	<br><br>
-    <button onclick="generateBarcode()">Generate Card</button>
-    <button onclick="window.print()">Print Card</button>
-	<p id="barcode-data"><span id="barcode-value"></span></p>
+    <main class="app">
+        <section class="panel">
+            <h1>Temporary Card Generator</h1>
+            <p class="muted">In-browser mode: upload/export patron data locally, search by name, then generate and print a temporary card.</p>
+
+            <div class="row">
+                <label for="patron-file">Load patron file (CSV):</label>
+                <input id="patron-file" type="file" accept=".csv,text/csv" />
+                <button id="clear-file" type="button">Clear Loaded Data</button>
+            </div>
+            <p class="muted">CSV headers supported: <code>name</code>, <code>barcode</code> (optional: <code>expires</code>, <code>note</code>).</p>
+
+            <div class="row">
+                <label for="name-search">Search name:</label>
+                <input id="name-search" type="text" placeholder="Type part of a patron name" autocomplete="off" />
+                <button id="search-btn" type="button">Search</button>
+            </div>
+
+            <ul id="search-results" aria-live="polite"></ul>
+
+            <div class="row">
+                <label for="manual-barcode">Manual barcode:</label>
+                <input id="manual-barcode" type="text" placeholder="Enter barcode directly" inputmode="numeric" />
+                <button id="generate-btn" type="button">Generate Card</button>
+                <button id="print-btn" type="button">Print Card</button>
+            </div>
+
+            <p id="status" class="status" aria-live="polite"></p>
+        </section>
+
+        <section class="panel">
+            <div class="card" aria-label="library card preview">
+                <div class="card-content">
+                    <h2>Temporary Library Card<br>Carte de bibliothèque temporaire</h2>
+                    <p id="selected-name" class="selected-name"></p>
+                    <img class="barcode" id="barcode" alt="Barcode preview" />
+                    <p id="barcode-value"></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
     <script src="https://unpkg.com/jsbarcode@latest/dist/JsBarcode.all.min.js"></script>
     <script src="script.js"></script>
 </body>
